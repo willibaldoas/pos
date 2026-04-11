@@ -1,0 +1,98 @@
+<div class="pos">
+
+  <!-- HEADER -->
+  <div class="header">
+
+  </div>
+
+  <!-- TOTAL -->
+  <div class="total">
+    ${{ total || 0 }}
+  </div>
+
+  <!-- BUSQUEDA -->
+  <input [(ngModel)]="busqueda" (input)="autocompletar()" placeholder="Buscar producto..." class="input" />
+
+  <!-- SUGERENCIAS -->
+  <div class="sugerencias" *ngIf="sugerencias.length">
+    <div class="item-sugerencia" *ngFor="let s of sugerencias" (click)="seleccionar(s)">
+      {{s.nombre}} - ${{s.precio}}
+    </div>
+  </div>
+
+
+
+  <!-- FONDO OSCURO -->
+  <div class="overlay" *ngIf="mostrarTicket" (click)="toggleTicket()"></div>
+
+  <!-- MODAL DESLIZABLE -->
+  <div class="ticket-modal" [class.open]="mostrarTicket">
+    <div class="modal-header">
+      <span>🧾 Ticket</span>
+      <div class="acciones">
+
+        <button (click)="vaciarTicket()" class="cancelar">
+          🧾 Cancelar
+        </button>
+
+        <button (click)="deshacer()" class="undo">
+          ↩️ Deshacer
+        </button>
+
+        <button class="cobrar" (click)="cobrar()">
+          Cobrar ${{total}}
+        </button>
+      </div>
+      <button (click)="toggleTicket()">✖</button>
+    </div>
+
+    <div class="ticket-body">
+
+      <div *ngFor="let item of items; let i = index" class="ticket-item">
+
+        <div class="fila">
+          <span>{{item.nombre}}</span>
+          <span>${{item.precio * item.cantidad}}</span>
+        </div>
+
+        <div class="controles">
+          <button (click)="restar(i)">➖</button>
+          <input type="text" class="input-cantidad" [value]="item.cantidad" readonly (click)="activarEdicion(i)"
+            [class.activo]="editandoIndex === i" />
+          <button (click)="sumar(i)">➕</button>
+          <button class="btn-delete" (click)="eliminarLinea(i)">🗑️</button>
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+  <!-- BOTONES -->
+  <div class="acciones">
+    <button class="link carrito" (click)="toggleTicket()">🛒 {{items.length}}</button>
+    <button class="cobrar" (click)="cobrar()">
+      Cobrar ${{total}}
+    </button>
+  </div>
+
+  <!-- TECLADO -->
+  <div class="teclado">
+    <button (click)="tecla('1')">1</button>
+    <button (click)="tecla('2')">2</button>
+    <button (click)="tecla('3')">3</button>
+
+    <button (click)="tecla('4')">4</button>
+    <button (click)="tecla('5')">5</button>
+    <button (click)="tecla('6')">6</button>
+
+    <button (click)="tecla('7')">7</button>
+    <button (click)="tecla('8')">8</button>
+    <button (click)="tecla('9')">9</button>
+
+    <button (click)="borrar()">⌫</button>
+    <button (click)="tecla('0')">0</button>
+    <button (click)="tecla('.')">.</button>
+  </div>
+
+</div>

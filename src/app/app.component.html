@@ -1,0 +1,17 @@
+<header class="navbar">
+  <div class="logo">Sistema</div>
+
+  <button class="hamburger" (click)="toggleMenu()">
+    ☰
+  </button>
+
+  <nav [class.open]="menuOpen">
+    <button routerLink="/cajero" (click)="cerrar()">Cajero</button>
+    <button routerLink="/admin" (click)="cerrar()">Productos</button>
+    <button routerLink="/informes" (click)="cerrar()">Informes</button>
+  </nav>
+</header>
+
+<div class="contenido">
+  <router-outlet></router-outlet>
+</div>
