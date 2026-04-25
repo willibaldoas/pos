@@ -1,0 +1,18 @@
+<div class="card total">
+  <h3>💰 Hoy</h3>
+  <p>${{ data.totalHoy }}</p>
+</div>
+
+<div class="card">
+  <h3>📅 Ventas por día</h3>
+  <div *ngFor="let v of data.ventasPorDia">
+    {{ v.fecha }} - ${{ v.total }}
+  </div>
+</div>
+
+<div class="card">
+  <h3>🔥 Top productos</h3>
+  <div *ngFor="let p of data.topProductos | keyvalue">
+    {{ p.key }} - {{ p.value }}
+  </div>
+</div>

@@ -9,63 +9,75 @@ import { CommonModule } from '@angular/common';
   standalone: true,
   imports: [FormsModule, CommonModule],
   templateUrl: './cajero.component.html',
-  styleUrls: ['./cajero.component.css'],
+  styleUrls: ['./cajero.component.css']
 })
-export class CajeroComponent {
+export class CajeroComponent implements OnInit {
 
   inventario: any[] = [];
   items: any[] = [];
-  total = 0;
+  total: number = 0;
 
-  busqueda = '';
+  busqueda: string = '';
   sugerencias: any[] = [];
 
   editandoIndex: number | null = null;
+  mostrarTicket: boolean = false;
 
-  mostrarTicket = false;
   ultimoEstado: any = null;
   metodo: string = 'Efectivo';
 
   constructor(
     private inv: InventarioService,
     private ventas: VentasService
-  ) { }
+  ) {}
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.inventario = this.inv.get();
   }
 
-  agregar(i: number) {
-    this.guardarEstado();
-    this.mostrarTicket = true;
-    let prod = this.inventario[i];
+  agregar(index: number): void {
+    const prod = this.inventario[index];
+
     if (!prod.ilimitado && prod.stock <= 0) {
-      return alert('Sin stock');
+      alert('Sin stock');
+      return;
     }
 
-    let item = this.items.find(p => p.nombre === prod.nombre);
+    this.guardarEstado();
+    this.mostrarTicket = true;
 
-    if (item) item.cantidad++;
-    else this.items.push({ ...prod, cantidad: 1, _cantidadAnterior: 1 });
+    const item = this.items.find(i => i.nombre === prod.nombre);
+
+    if (item) {
+      item.cantidad++;
+    } else {
+      this.items.push({
+        ...prod,
+        cantidad: 1
+      });
+    }
 
     if (!prod.ilimitado) {
       prod.stock--;
     }
 
     this.ventas.actualizarProducto(prod.nombre);
+
     this.calcularTotal();
     this.inv.save(this.inventario);
   }
 
-  calcularTotal() {
-    this.total = this.items.reduce((a, b) =>
-      a + (b.precio * b.cantidad), 0);
+  calcularTotal(): void {
+    this.total = this.items.reduce(
+      (acc, item) => acc + (item.precio * item.cantidad),
+      0
+    );
   }
 
-  cobrar() {
-
+  cobrar(): void {
     if (this.items.length === 0) {
-      return alert('No hay productos');
+      alert('No hay productos');
+      return;
     }
 
     const detalle = this.items.map(item => ({
@@ -75,104 +87,75 @@ export class CajeroComponent {
       subtotal: item.precio * item.cantidad
     }));
 
-  
     this.ventas.guardarVenta(detalle, this.metodo);
 
-    alert('Total: $' + this.total);
+    alert(`Total: $${this.total}`);
 
-    // limpiar
     this.items = [];
     this.total = 0;
+    this.busqueda = '';
+    this.sugerencias = [];
+    this.editandoIndex = null;
+    this.mostrarTicket = false;
   }
 
-
-  autocompletar() {
-    if (!this.busqueda) {
+  autocompletar(): void {
+    if (!this.busqueda.trim()) {
       this.sugerencias = [];
       return;
     }
 
     const texto = this.busqueda.toLowerCase();
 
-    this.sugerencias = this.inventario.filter(p => {
-      return (
+    this.sugerencias = this.inventario
+      .filter(p =>
         p.nombre.toLowerCase().includes(texto) ||
         p.precio.toString().includes(texto)
-      );
-    }).slice(0, 5);
+      )
+      .slice(0, 5);
   }
 
-  seleccionar(p: any) {
-    let index = this.inventario.indexOf(p);
+  seleccionar(producto: any): void {
+    const index = this.inventario.indexOf(producto);
+
     this.agregar(index);
+
     this.busqueda = '';
     this.sugerencias = [];
   }
 
-    tecla(valor: string) {
-
-    // 👉 EDITANDO CANTIDAD
+  tecla(valor: string): void {
     if (this.editandoIndex !== null) {
+      const item = this.items[this.editandoIndex];
 
-      let item = this.items[this.editandoIndex];
-      let actual = item.cantidad.toString();
+      const nuevaCantidad = Number(
+        item.cantidad.toString() + valor
+      );
 
-      let nueva = parseInt(actual + valor);
+      if (isNaN(nuevaCantidad)) return;
 
-      if (isNaN(nueva)) return;
-
-      this.actualizarCantidad(this.editandoIndex, nueva);
+      this.actualizarCantidad(this.editandoIndex, nuevaCantidad);
       return;
     }
 
-  // 👉 BUSQUEDA
-  this.busqueda += valor;
-  this.autocompletar();
-}
+    if (valor === '.') return;
 
-actualizarCantidad(i: number, nuevaCantidad: number) {
-  const item = this.items[i];
-  const prod = this.inventario.find(p => p.nombre === item.nombre);
-
-  if (!prod) return;
-
-  let diferencia = nuevaCantidad - item.cantidad;
-
-  if (!prod.ilimitado) {
-
-    if (diferencia > 0) {
-      if (prod.stock < diferencia) {
-        alert('Sin stock');
-        return;
-      }
-      prod.stock -= diferencia;
-    }
-
-    if (diferencia < 0) {
-      prod.stock += Math.abs(diferencia);
-    }
+    this.busqueda += valor;
+    this.autocompletar();
   }
 
-  item.cantidad = nuevaCantidad;
-
-  this.calcularTotal();
-  this.inv.save(this.inventario);
-}
-
-  borrar() {
-
+  borrar(): void {
     if (this.editandoIndex !== null) {
+      const item = this.items[this.editandoIndex];
+      const nuevaCantidad = Math.floor(item.cantidad / 10);
 
-      let item = this.items[this.editandoIndex];
-      let nueva = Math.floor(item.cantidad / 10);
-
-      if (nueva <= 0) {
+      if (nuevaCantidad <= 0) {
         this.eliminarLinea(this.editandoIndex);
         this.editandoIndex = null;
         return;
       }
 
-      this.actualizarCantidad(this.editandoIndex, nueva);
+      this.actualizarCantidad(this.editandoIndex, nuevaCantidad);
       return;
     }
 
@@ -180,80 +163,116 @@ actualizarCantidad(i: number, nuevaCantidad: number) {
     this.autocompletar();
   }
 
-  editarCantidad(i: number) {
-    this.editandoIndex = i;
-  }
-
-  sumar(i: number) {
-    this.guardarEstado();
-
-    let prod = this.inventario.find(p => p.nombre === this.items[i].nombre);
+  actualizarCantidad(index: number, nuevaCantidad: number): void {
+    const item = this.items[index];
+    const prod = this.inventario.find(
+      p => p.nombre === item.nombre
+    );
 
     if (!prod) return;
 
+    const diferencia = nuevaCantidad - item.cantidad;
+
     if (!prod.ilimitado) {
-      if (prod.stock <= 0) return;
-      prod.stock--;
+      if (diferencia > 0) {
+        if (prod.stock < diferencia) {
+          alert('Sin stock');
+          return;
+        }
+
+        prod.stock -= diferencia;
+      }
+
+      if (diferencia < 0) {
+        prod.stock += Math.abs(diferencia);
+      }
     }
 
-    this.items[i].cantidad++;
+    item.cantidad = nuevaCantidad;
 
     this.calcularTotal();
     this.inv.save(this.inventario);
   }
 
-  restar(i: number) {
+  sumar(index: number): void {
+    const prod = this.inventario.find(
+      p => p.nombre === this.items[index].nombre
+    );
+
+    if (!prod) return;
+
+    if (!prod.ilimitado && prod.stock <= 0) {
+      alert('Sin stock');
+      return;
+    }
+
     this.guardarEstado();
 
-    let prod = this.inventario.find(p => p.nombre === this.items[i].nombre);
+    this.items[index].cantidad++;
 
-    this.items[i].cantidad--;
+    if (!prod.ilimitado) {
+      prod.stock--;
+    }
+
+    this.calcularTotal();
+    this.inv.save(this.inventario);
+  }
+
+  restar(index: number): void {
+    const prod = this.inventario.find(
+      p => p.nombre === this.items[index].nombre
+    );
+
+    if (!prod) return;
+
+    this.guardarEstado();
+
+    this.items[index].cantidad--;
+
     if (!prod.ilimitado) {
       prod.stock++;
     }
 
-    if (this.items[i].cantidad <= 0) {
-      this.items.splice(i, 1);
+    if (this.items[index].cantidad <= 0) {
+      this.items.splice(index, 1);
     }
 
     this.calcularTotal();
     this.inv.save(this.inventario);
   }
 
-  eliminarLinea(i: number) {
-    this.guardarEstado();
+  eliminarLinea(index: number): void {
+    const item = this.items[index];
 
-    const item = this.items[i];
+    const prod = this.inventario.find(
+      p => p.nombre === item.nombre
+    );
 
-    // regresar stock al inventario
-    let prod = this.inventario.find(p => p.nombre === item.nombre);
     if (prod && !prod.ilimitado) {
       prod.stock += item.cantidad;
     }
 
-    // eliminar del ticket
-    this.items.splice(i, 1);
+    this.guardarEstado();
+
+    this.items.splice(index, 1);
 
     this.calcularTotal();
     this.inv.save(this.inventario);
   }
 
-  vaciarTicket() {
-    if (!confirm('¿Cancelar toda la venta?')) return;
+  vaciarTicket(): void {
+    if (!confirm('¿Cancelar venta?')) return;
 
-    // regresar todo el stock
+    this.guardarEstado();
+
     this.items.forEach(item => {
-      let prod = this.inventario.find(p => p.nombre === item.nombre);
+      const prod = this.inventario.find(
+        p => p.nombre === item.nombre
+      );
+
       if (prod && !prod.ilimitado) {
         prod.stock += item.cantidad;
       }
-    });
-
-    // guardar respaldo para deshacer
-    this.ultimoEstado = JSON.stringify({
-      items: this.items,
-      inventario: this.inventario,
-      total: this.total
     });
 
     this.items = [];
@@ -262,64 +281,34 @@ actualizarCantidad(i: number, nuevaCantidad: number) {
     this.inv.save(this.inventario);
   }
 
-  deshacer() {
-    if (!this.ultimoEstado) return alert('Nada que deshacer');
+  deshacer(): void {
+    if (!this.ultimoEstado) {
+      alert('Nada que deshacer');
+      return;
+    }
 
-    const data = JSON.parse(this.ultimoEstado);
-
-    this.items = data.items;
-    this.inventario = data.inventario;
-    this.total = data.total;
+    this.items = [...this.ultimoEstado.items];
+    this.inventario = [...this.ultimoEstado.inventario];
+    this.total = this.ultimoEstado.total;
 
     this.inv.save(this.inventario);
   }
 
-  guardarEstado() {
-    this.ultimoEstado = JSON.stringify({
-      items: this.items,
-      inventario: this.inventario,
+  guardarEstado(): void {
+    this.ultimoEstado = {
+      items: structuredClone(this.items),
+      inventario: structuredClone(this.inventario),
       total: this.total
-    });
-  }
-cambiarCantidad(i: number) {
-  const item = this.items[i];
-  const prod = this.inventario.find(p => p.nombre === item.nombre);
-
-  if (!prod) return;
-
-  if (!prod.ilimitado) {
-
-    let cantidadAnterior = item._cantidadAnterior || item.cantidad;
-    let diferencia = item.cantidad - cantidadAnterior;
-
-    if (diferencia > 0) {
-      if (prod.stock < diferencia) {
-        alert('No hay suficiente stock');
-        item.cantidad = cantidadAnterior;
-        return;
-      }
-      prod.stock -= diferencia;
-    }
-
-    if (diferencia < 0) {
-      prod.stock += Math.abs(diferencia);
-    }
-
-    item._cantidadAnterior = item.cantidad;
+    };
   }
 
-  // 👇 SIEMPRE recalcula (ilimitado o no)
-  this.calcularTotal();
-  this.inv.save(this.inventario);
-}
+  activarEdicion(index: number): void {
+    this.editandoIndex = index;
+  }
 
-activarEdicion(i: number) {
-  this.editandoIndex = i;
-}
+  toggleTicket(): void {
+    if (this.items.length === 0) return;
 
-  toggleTicket() {
     this.mostrarTicket = !this.mostrarTicket;
   }
-
-  
 }

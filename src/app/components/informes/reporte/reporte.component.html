@@ -1,0 +1,37 @@
+<div *ngIf="reporte" class="reporte">
+
+  <p class="fechas">
+    📅 {{ fechaInicio }} → {{ fechaFin }}
+  </p>
+
+  <div class="card total">
+    💰 Total: ${{ reporte.total }}
+  </div>
+
+  <div class="card">
+    🧾 Ventas realizadas: {{ reporte.cantidadVentas }}
+  </div>
+
+  <!-- Métodos de pago -->
+  <div class="card" *ngIf="reporte.metodos">
+    <h4>💳 Métodos de pago</h4>
+
+    <div *ngFor="let metodo of getKeys(reporte.metodos)">
+      {{ metodo }}: ${{ reporte.metodos[metodo] }}
+    </div>
+  </div>
+
+  <!-- Productos -->
+  <div class="card" *ngIf="reporte.productos">
+    <h4>🔥 Productos vendidos</h4>
+
+    <div *ngFor="let producto of getKeys(reporte.productos)">
+      {{ producto }}: {{ reporte.productos[producto] }}
+    </div>
+  </div>
+
+  <button (click)="compartir.emit()">
+    📤 Compartir
+  </button>
+
+</div>

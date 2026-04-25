@@ -1,0 +1,26 @@
+<div class="form">
+
+  <label>Nombre</label>
+  <input [(ngModel)]="nombre" placeholder="Ej: Coca Cola" />
+
+  <label>Precio de venta</label>
+  <input [(ngModel)]="precio" type="number" placeholder="$0.00" />
+
+  <label>Costo de producción</label>
+  <input [(ngModel)]="costo" type="number" placeholder="$0.00" />
+
+  <label class="check">
+    <input type="checkbox" [(ngModel)]="ilimitado">
+    Inventario ilimitado
+  </label>
+
+  <input 
+    *ngIf="!ilimitado" 
+    [(ngModel)]="stock" 
+    type="number" 
+    placeholder="Stock disponible" 
+  />
+
+  <button (click)="agregarProducto()">➕ Agregar producto</button>
+
+</div>

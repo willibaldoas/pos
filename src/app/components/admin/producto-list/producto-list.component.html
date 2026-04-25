@@ -1,0 +1,100 @@
+<div class="buscador-wrapper">
+
+  <span class="icono">🔍</span>
+
+  <input 
+    [(ngModel)]="busqueda" 
+    (input)="filtrar()" 
+    placeholder="Buscar producto..." 
+    class="buscador"
+  />
+
+  <button 
+    *ngIf="busqueda" 
+    class="clear" 
+    (click)="busqueda=''; filtrar()"
+  >
+    ✖
+  </button>
+
+</div>
+
+<div class="lista">
+
+  <div class="item" *ngFor="let p of productosFiltrados">
+
+    <!-- 🧾 MODO VER -->
+    <div *ngIf="modo === 'ver'">
+
+      <div *ngIf="editando !== p.id" class="vista">
+
+        <div class="info">
+          <span>{{p.nombre}}</span>
+          <span>${{p.precio}}</span>
+        </div>
+
+        <div class="acciones">
+          <button (click)="iniciarEdicion(p)">✏️</button>
+          <button (click)="eliminar.emit(p)">🗑️</button>
+        </div>
+
+      </div>
+
+      <!-- ✏️ EDICIÓN -->
+      <div *ngIf="editando === p.id" class="edit">
+
+        <input [(ngModel)]="p.nombre">
+        <input [(ngModel)]="p.precio" type="number">
+
+        <label>
+          <input type="checkbox" [(ngModel)]="p.ilimitado">
+          Ilimitado
+        </label>
+
+        <input *ngIf="!p.ilimitado" [(ngModel)]="p.stock" type="number">
+
+        <div class="acciones">
+          <button (click)="guardarEdicion()">💾</button>
+          <button (click)="cancelarEdicion(p)">❌</button>
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- 📦 MODO INVENTARIO -->
+    <div *ngIf="modo === 'inventario'">
+
+      <div class="info">
+        <span>{{p.nombre}}</span>
+        <span>$ {{p.precio}}</span>
+      </div>
+
+      <div class="stock-control">
+
+        <span class="stock" [class.bajo]="p.stock <= 5 && !p.ilimitado">
+          <span *ngIf="p.ilimitado">♾️</span>
+          <span *ngIf="!p.ilimitado">{{p.stock}}</span>
+        </span>
+
+        <div class="acciones">
+          <button (click)="cambiarStock.emit({p, cantidad:-1})">➖</button>
+          <button (click)="cambiarStock.emit({p, cantidad:1})">➕</button>
+          <button (click)="cambiarStock.emit({p, cantidad:10})">+10</button>
+          <button (click)="cambiarStock.emit({p, cantidad:50})">+50</button>
+        </div>
+
+      </div>
+
+      <input 
+        type="number"
+        placeholder="Cantidad"
+        #inputCantidad
+        (keyup.enter)="aplicarCantidad.emit({p, cantidad: inputCantidad.valueAsNumber}); inputCantidad.value='';"
+      />
+
+    </div>
+
+  </div>
+
+</div>

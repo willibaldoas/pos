@@ -4,10 +4,13 @@ import { CommonModule } from '@angular/common';
 import { InventarioService } from '../../services/inventario.service';
 import { VentasService } from '../../services/ventas.services';
 
+import { ProductoFormComponent } from './producto-form/producto-form.component';
+import { ProductoListComponent } from './producto-list/producto-list.component';
+
 @Component({
   selector: 'app-admin',
   standalone: true,
-  imports: [FormsModule, CommonModule],
+  imports: [FormsModule, CommonModule, ProductoFormComponent, ProductoListComponent],
   templateUrl: './admin.component.html',
   styleUrls: ['./admin.css'],
 })
@@ -170,4 +173,11 @@ export class Admin implements OnInit {
   esStockBajo(p: any) {
     return !p.ilimitado && p.stock <= 5;
   }
+
+  agregarDesdeForm(producto: any) {
+  this.inventario.push(producto);
+  this.inv.save(this.inventario);
+
+  this.filtrarInventario();
+}
 }

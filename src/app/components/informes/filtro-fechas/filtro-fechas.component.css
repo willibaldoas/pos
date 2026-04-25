@@ -1,0 +1,21 @@
+.filtro {
+  display: flex;
+  gap: 8px;
+}
+
+.filtro input {
+  flex: 1;
+  padding: 10px;
+  border-radius: 10px;
+  border: none;
+  background: #0f172a;
+  color: white;
+}
+
+.filtro button {
+  padding: 10px;
+  border-radius: 10px;
+  border: none;
+  background: #22c55e;
+  color: white;
+}

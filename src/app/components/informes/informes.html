@@ -1,143 +1,56 @@
 <div class="admin">
   <h2 class="titulo">📊 Ventas</h2>
+
   <div class="contenido">
 
-    <div *ngIf="vista === 'ventas'" class="ventas-container">
+    <!-- DASHBOARD -->
+    <app-dashboard 
+      *ngIf="vista === 'dashboard'"
+      [data]="dashboard">
+    </app-dashboard>
 
-      <h2>📊 Historial de ventas</h2>
+    <!-- FILTRO -->
+    <app-filtro-fechas
+      *ngIf="vista === 'ventas' || vista === 'reporte'"
+      (filtrar)="onFiltrar($event)"
+      (reset)="resetFiltro()">
+    </app-filtro-fechas>
 
-      <div class="filtro">
+    <!-- VENTAS -->
+    <app-ventas-list
+      *ngIf="vista === 'ventas'"
+      [ventas]="ventas">
+    </app-ventas-list>
 
-        <input type="date" [(ngModel)]="fechaInicio">
-        <input type="date" [(ngModel)]="fechaFin">
+    <!-- REPORTE -->
+    <app-reporte
+      *ngIf="vista === 'reporte'"
+      [reporte]="reporte"
+      [fechaInicio]="fechaInicio"
+      [fechaFin]="fechaFin"
+      (compartir)="compartirReporte()">
+    </app-reporte>
 
-        <button (click)="filtrarPorFecha()">🔍 Filtrar</button>
-        <button (click)="limpiarFiltro()">♻️ Reset</button>
-
-      </div>
-
-      <div *ngFor="let v of ventas; let i = index" class="venta-card">
-
-        <!-- CABECERA -->
-        <div class="venta-header" (click)="toggleDetalle(i)">
-          <div>
-            <strong>#{{ v.folio }}</strong><br>
-            <small>{{ v.fecha | date:'short' }}</small>
-          </div>
-
-          <div class="total">
-            ${{ v.total }}
-          </div>
-        </div>
-
-        <!-- DETALLE -->
-        <div *ngIf="ventaAbierta === i" class="detalle">
-
-          <div *ngFor="let item of v.items" class="detalle-item">
-            {{ item.nombre }} x{{ item.cantidad }}
-            <span>${{ item.subtotal }}</span>
-          </div>
-
-          <div class="metodo">
-            💳 {{ v.metodo || 'Efectivo' }}
-          </div>
-
-        </div>
-
-      </div>
-
-    </div>
-    <div *ngIf="vista === 'dashboard'" class="dashboard">
-
-      <h2>📊 Dashboard</h2>
-
-      <!-- TOTAL HOY -->
-      <div class="card total">
-        <h3>💰 Hoy</h3>
-        <p>${{ dashboard.totalHoy }}</p>
-      </div>
-
-      <!-- VENTAS POR DIA -->
-      <div class="card">
-        <h3>📅 Ventas por día</h3>
-        <div *ngFor="let v of dashboard.ventasPorDia">
-          {{ v.fecha }} - ${{ v.total }}
-        </div>
-      </div>
-
-      <!-- TOP PRODUCTOS -->
-      <div class="card">
-        <h3>🔥 Top productos</h3>
-        <div *ngFor="let p of dashboard.topProductos | keyvalue">
-          {{ p.key }} - {{ p.value }} vendidos
-        </div>
-      </div>
-
-      <!-- METODOS DE PAGO -->
-      <div class="card">
-        <h3>💳 Métodos de pago</h3>
-        <div *ngFor="let m of dashboard.metodos | keyvalue">
-          {{ m.key }} - ${{ m.value }}
-        </div>
-      </div>
-
-    </div>
-    <div *ngIf="vista === 'reporte'" class="reporte">
-
-      <div class="filtro">
-
-        <input type="date" [(ngModel)]="fechaInicio">
-        <input type="date" [(ngModel)]="fechaFin">
-
-        <button (click)="generarReporte()">📊 Generar</button>
-
-      </div>
-      <h2>📊 Reporte</h2>
-
-      <p>📅 {{ fechaInicio }} → {{ fechaFin }}</p>
-
-      <div class="card total">
-        💰 Total: ${{ reporte.total }}
-      </div>
-
-      <div class="card">
-        🧾 Ventas: {{ reporte.cantidadVentas }}
-      </div>
-
-      <!-- METODOS -->
-      <div class="card">
-        <h3>💳 Métodos</h3>
-        <div *ngFor="let m of reporte.metodos | keyvalue">
-          {{ m.key }} - ${{ m.value }}
-        </div>
-      </div>
-
-      <!-- PRODUCTOS -->
-      <div class="card">
-        <h3>🔥 Productos</h3>
-        <div *ngFor="let p of reporte.productos | keyvalue">
-          {{ p.key }} - {{ p.value }} vendidos
-        </div>
-      </div>
-
-      <button (click)="compartirReporte()">📤 Compartir</button>
-
-    </div>
+    <!-- MENÚ -->
     <div class="bottom-menu">
 
-      <div class="item" [class.activo]="vista === 'dashboard'" (click)="verDashboard()">
+      <div class="item"
+        [class.activo]="vista === 'dashboard'"
+        (click)="verDashboard()">
         <span class="icon">📊</span>
         <small>Dashboard</small>
       </div>
 
-      <div class="item" 
-          [class.activo]="vista === 'reporte'" 
-          (click)="verReporte()">
+      <div class="item"
+        [class.activo]="vista === 'reporte'"
+        (click)="verReporte()">
         <span class="icon">📦</span>
         <small>Reporte</small>
       </div>
 
-      <div class="item" [class.activo]="vista === 'ventas'" (click)="verVentas()">
+      <div class="item"
+        [class.activo]="vista === 'ventas'"
+        (click)="verVentas()">
         <span class="icon">💰</span>
         <small>Ventas</small>
       </div>
@@ -145,3 +58,4 @@
     </div>
 
   </div>
+</div>

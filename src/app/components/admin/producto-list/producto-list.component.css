@@ -1,0 +1,102 @@
+.lista {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.item {
+  background: #a5c1ed;
+  padding: 12px;
+  border-radius: 14px;
+}
+
+.info {
+  display: flex;
+  justify-content: space-between;
+}
+
+.acciones button {
+  margin: 3px;
+  padding: 6px 10px;
+  border-radius: 10px;
+  border: none;
+  background: #334155;
+  color: white;
+}
+
+.stock.bajo {
+  color: #ef4444;
+}
+
+/*buscador*/
+.buscador-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  background: #0f172a;
+  border-radius: 16px;
+  padding: 10px 12px;
+  box-shadow: inset 0 0 0 1px #334155;
+  transition: all 0.2s ease;
+}
+
+/* focus general */
+.buscador-wrapper:focus-within {
+  box-shadow: inset 0 0 0 2px #22c55e;
+}
+
+/* icono */
+.icono {
+  font-size: 16px;
+  opacity: 0.6;
+  margin-right: 8px;
+}
+
+/* input */
+.buscador {
+  flex: 1;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: white;
+  font-size: 16px;
+}
+
+/* placeholder */
+.buscador::placeholder {
+  color: #94a3b8;
+}
+
+/* botón limpiar */
+.clear {
+  background: #334155;
+  border: none;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  color: white;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+/* hover */
+.clear:hover {
+  background: #475569;
+}
+
+/* animación */
+.buscador-wrapper {
+  animation: fadeIn 0.25s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

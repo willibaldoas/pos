@@ -3,152 +3,33 @@
   <h2 class="titulo">📦 Inventario</h2>
 
   <div class="contenido">
-    <div class="form" *ngIf="vista === 'crear'">
-      <label>Nombre</label>
-      <input [(ngModel)]="nombre" placeholder="Ej: Coca Cola" />
+    <app-producto-form *ngIf="vista === 'crear'" (crear)="agregarDesdeForm($event)">
+    </app-producto-form>
+    <app-product-list *ngIf="vista === 'ver'" [productos]="inventario" modo="ver" (eliminar)="eliminar($event)"
+      (guardar)="guardar()" (cancelar)="cancelar()">
+    </app-product-list>
 
-      <label>Precio de venta</label>
-      <input [(ngModel)]="precio" type="number" placeholder="$0.00" />
+    <app-product-list *ngIf="vista === 'inventario'" [productos]="inventario" modo="inventario"
+      (cambiarStock)="cambiarStock($event.p, $event.cantidad)"
+      (aplicarCantidad)="aplicarCantidad($event.p, $event.cantidad)">
+    </app-product-list>
 
-      <label>Costo de producción</label>
-      <input [(ngModel)]="costo" type="number" placeholder="$0.00" />
+    <div class="bottom-menu">
 
-      <label class="check">
-        <input type="checkbox" [(ngModel)]="ilimitado">
-        Inventario ilimitado
-      </label>
+      <div class="item" [class.activo]="vista === 'crear'" (click)="crearProductos()">
+        <span>➕</span>
+        <small>Altas</small>
+      </div>
 
-      <!-- 👇 SOLO SI NO ES ILIMITADO -->
-      <input *ngIf="!ilimitado" [(ngModel)]="stock" type="number" placeholder="Stock disponible" />
+      <div class="item" [class.activo]="vista === 'ver'" (click)="editarProductos()">
+        <span>📦</span>
+        <small>Productos</small>
+      </div>
 
-      <button (click)="agregar()">➕ Agregar producto</button>
-    </div>
-
-    <div *ngIf="vista === 'ver'">
-      <div class="lista">
-        <input [(ngModel)]="busquedaInventario" (input)="filtrarInventario()" placeholder="🔍 Buscar producto..."
-          class="buscador" />
-        <div class="item" *ngFor="let p of inventarioFiltrado">
-
-          <div *ngIf="editando !== p.id" class="vista">
-
-            <div class="info">
-              <span class="nombre">{{p.nombre}}</span>
-              <span class="precio">${{p.precio}}</span>
-            </div>
-
-            <div class="acciones">
-              <button *ngIf="editando !== p.id" class="vista" (click)="editar(p)">✏️</button>
-              <button *ngIf="editando === p.id" class="edit" (click)="eliminar(p)">🗑️</button>
-            </div>
-
-          </div>
-
-          <!-- MODO EDICIÓN -->
-          <div *ngIf="editando === p.id" class="edit">
-
-            <input [(ngModel)]="p.nombre">
-            <input [(ngModel)]="p.precio" type="number">
-
-            <label>
-              <input type="checkbox" [(ngModel)]="p.ilimitado">
-              Ilimitado
-            </label>
-
-            <input *ngIf="!p.ilimitado" [(ngModel)]="p.stock" type="number">
-
-            <div class="acciones">
-              <button (click)="guardar()">💾</button>
-              <button (click)="cancelar()">❌</button>
-            </div>
-
-          </div>
-
-        </div>
+      <div class="item" [class.activo]="vista === 'inventario'" (click)="agregarInventario()">
+        <span>📥</span>
+        <small>Stock</small>
       </div>
     </div>
 
-    <div *ngIf="vista === 'inventario'">
-
-      <input 
-        [(ngModel)]="busquedaInventario" 
-        (input)="filtrarInventario()" 
-        placeholder="🔍 Buscar producto..." 
-        class="buscador"
-      />
-
-      <div class="lista">
-
-        <div class="item" *ngFor="let p of inventarioFiltrado">
-
-          <div class="info">
-            <span class="nombre">{{p.nombre}}</span>
-            <span class="precio">$ {{p.precio}}</span>
-          </div>
-
-          <div class="stock-control">
-
-            <!-- STOCK VISUAL -->
-            <span 
-              class="stock" 
-              [class.bajo]="p.stock <= 5 && !p.ilimitado"
-            >
-              <span *ngIf="p.ilimitado">♾️</span>
-              <span *ngIf="!p.ilimitado">{{p.stock}}</span>
-            </span>
-
-            <!-- BOTONES RÁPIDOS -->
-            <div class="acciones">
-
-              <button class="menos" (click)="cambiarStock(p, -1)">➖</button>
-              <button class="mas" (click)="cambiarStock(p, 1)">➕</button>
-
-              <button (click)="cambiarStock(p, 10)">+10</button>
-              <button (click)="cambiarStock(p, 50)">+50</button>
-
-            </div>
-
-          </div>
-
-          <!-- INPUT MANUAL -->
-          <input 
-            type="number"
-            placeholder="Cantidad"
-            #inputCantidad
-            (keyup.enter)="aplicarCantidad(p, inputCantidad.valueAsNumber); inputCantidad.value='';"
-          />
-
-        </div>
-
-        <div class="historial">
-
-        <h3>📊 Movimientos</h3>
-
-        <div *ngFor="let h of historial">
-          {{h.producto}} → {{h.cambio > 0 ? '+' : ''}}{{h.cambio}}
-        </div>
-</div>
-
-      </div>
-
-    </div>
-
-  <div class="bottom-menu">
-
-    <div class="item" [class.activo]="vista === 'crear'" (click)="crearProductos()">
-      <span>➕</span>
-      <small>Altas</small>
-    </div>
-
-    <div class="item" [class.activo]="vista === 'ver'" (click)="editarProductos()">
-      <span>📦</span>
-      <small>Productos</small>
-    </div>
-
-    <div class="item" [class.activo]="vista === 'inventario'" (click)="agregarInventario()">
-      <span>📥</span>
-      <small>Stock</small>
-    </div>
   </div>
-
-</div>

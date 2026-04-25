@@ -1,0 +1,27 @@
+<div *ngFor="let v of ventas; let i = index" class="venta-card">
+
+  <div class="venta-header" (click)="toggle(i)">
+    <div>
+      <strong>#{{ v.folio }}</strong><br>
+      <small>{{ v.fecha | date:'short' }}</small>
+    </div>
+
+    <div class="total">
+      ${{ v.total }}
+    </div>
+  </div>
+
+  <div *ngIf="ventaAbierta === i" class="detalle">
+
+    <div *ngFor="let item of v.items" class="detalle-item">
+      {{ item.nombre }} x{{ item.cantidad }}
+      <span>${{ item.subtotal }}</span>
+    </div>
+
+    <div class="metodo">
+      💳 {{ v.metodo || 'Efectivo' }}
+    </div>
+
+  </div>
+
+</div>
